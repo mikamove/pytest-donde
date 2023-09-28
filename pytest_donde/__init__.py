@@ -1,6 +1,6 @@
 # coding: utf-8
 
-__version__ = '0.0.28'
+__version__ = '0.0.29'
 
 class DondeException(Exception):
     def __init__(self, msg):
