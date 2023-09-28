@@ -32,7 +32,7 @@ jobs:
           python -m twine check dist/*
       - name: upload
         env:
-          TWINE_USERNAME: ${{ secrets.TESTPYPI_API_USER }}
-          TWINE_PASSWORD: ${{ secrets.TESTPYPI_API_TOKEN }}
+          TWINE_USERNAME: ${{ secrets.PYPI_API_USER }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          python -m twine upload --repository testpypi dist/*
+          python -m twine upload dist/*
