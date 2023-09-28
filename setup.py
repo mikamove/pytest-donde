@@ -22,7 +22,7 @@ example_files = package_files('examples')
 from setuptools import find_packages
 setup(
     name='pytest_donde',
-    version='0.0.29',
+    version='0.0.30',
     author='Clemens Löbner',
     author_email='mikamove@posteo.de',
     maintainer='Clemens Löbner',
