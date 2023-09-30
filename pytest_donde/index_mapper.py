@@ -19,6 +19,3 @@ class IndexMapper:
 
     def to_index(self, val):
         return self.val_to_index[val]
-
-    def from_index(self, index):
-        return self.index_to_val[index]

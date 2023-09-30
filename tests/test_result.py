@@ -31,11 +31,7 @@ DURATIONS = [
     12.1,
 ]
 
-@pytest.mark.parametrize('to_file, from_file', [
-    (lambda r, path: r.to_file(path), lambda path: Outcome.from_file(path)),
-    (lambda r, path: to_file_oldformat(r, path), lambda path: from_file_oldformat(path)),
-], ids=['new', 'old'])
-def test_outcome(to_file, from_file):
+def test_outcome():
     r = Outcome()
 
     r.register_coverage(NIDS[0], LOCS[0])
@@ -58,7 +54,7 @@ def test_outcome(to_file, from_file):
     r.register_duration(NIDS[3], DURATIONS[3])
     r.register_duration(NIDS[4], DURATIONS[4])
 
-    to_file(r, '/tmp/test.uncov.json')
+    r.to_file('/tmp/test.uncov.json')
 
     assert r.nodeid_to_duration == {
         NIDS[0]: DURATIONS[0],
@@ -75,57 +71,9 @@ def test_outcome(to_file, from_file):
         NIDS[4]: set([2]),
     }
 
-    r2 = from_file('/tmp/test.uncov.json')
+    r2 = Outcome.from_file('/tmp/test.uncov.json')
 
     assert r2.nodeid_to_duration == r.nodeid_to_duration
     assert r2.nodeid_to_lindices == r.nodeid_to_lindices
     assert r2._locs.index_to_val == r._locs.index_to_val
     assert r2._locs.index_to_val == r._locs.index_to_val
-
-
-def to_file_oldformat(outcome, path):
-    outcome.assert_completeness()
-
-    _nodeids = IndexMapper()
-
-    for nodeid in outcome.nodeids():
-        _nodeids.register(nodeid)
-
-    data = {
-        'lindex_to_loc': outcome._locs.index_to_val,
-        'nindex_to_nodeid': _nodeids.index_to_val,
-        'nindex_to_lindices': {_nodeids.to_index(nid): list(sorted(v)) for nid,v in outcome.nodeid_to_lindices.items()},
-        'nindex_to_duration': {_nodeids.to_index(nid): v for nid, v in outcome.nodeid_to_duration.items()},
-        'nodeid_to_lindices': {k: list(sorted(v)) for k,v in outcome.nodeid_to_lindices.items()},
-        'nodeid_to_duration': outcome.nodeid_to_duration,
-    }
-
-    with open(path, 'w') as fo:
-        json.dump(data, fo)
-
-
-def from_file_oldformat(path):
-    with open(path, 'r') as fi:
-        data = json.load(fi)
-
-    result = Outcome()
-
-    lindex_to_loc = {int(k): tuple(v) for k,v in data['lindex_to_loc'].items()}
-    for _, loc in sorted(lindex_to_loc.items()):
-        result._locs.register(loc)
-
-    nindex_to_nodeid = {int(k): v for k,v in data['nindex_to_nodeid'].items()}
-    _nodeids = IndexMapper()
-    for _, nodeid in sorted(nindex_to_nodeid.items()):
-        _nodeids.register(nodeid)
-
-    for nindex_str, lindices in sorted(data['nindex_to_lindices'].items()):
-        nodeid = _nodeids.from_index(int(nindex_str))
-        result.nodeid_to_lindices[nodeid] = set(map(int, lindices))
-
-    for nindex_str, duration in data['nindex_to_duration'].items():
-        nodeid = _nodeids.from_index(int(nindex_str))
-        result.nodeid_to_duration[nodeid] = float(duration)
-
-    result.assert_completeness()
-    return result

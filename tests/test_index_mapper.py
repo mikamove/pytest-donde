@@ -13,8 +13,6 @@ def test_index_mapper():
 
     assert m.to_index('a') == 1
     assert m.to_index('b') == 0
-    assert m.from_index(1) == 'a'
-    assert m.from_index(0) == 'b'
 
     with pytest.raises(KeyError):
-        m.from_index(99)
+        m.to_index('c')
