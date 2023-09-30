@@ -31,7 +31,11 @@ DURATIONS = [
     12.1,
 ]
 
-def test_outcome():
+@pytest.mark.parametrize('to_file, from_file', [
+    (lambda r, path: r.to_file(path), lambda path: Outcome.from_file(path)),
+    (lambda r, path: to_file_oldformat(r, path), lambda path: from_file_oldformat(path)),
+], ids=['new', 'old'])
+def test_outcome(to_file, from_file):
     r = Outcome()
 
     r.register_coverage(NIDS[0], LOCS[0])
@@ -48,21 +52,14 @@ def test_outcome():
     r._register_nodeid('dummy2')
     r.discard_nodeid('dummy2')
 
+    r.register_duration(NIDS[2], DURATIONS[2])
     r.register_duration(NIDS[0], DURATIONS[0])
     r.register_duration(NIDS[1], DURATIONS[1])
-    r.register_duration(NIDS[2], DURATIONS[2])
     r.register_duration(NIDS[3], DURATIONS[3])
     r.register_duration(NIDS[4], DURATIONS[4])
 
-    r.to_file('/tmp/test.uncov.json')
+    to_file(r, '/tmp/test.uncov.json')
 
-    # assert r.nindex_to_duration == {
-    #     0: 0.1,
-    #     1: 0.4,
-    #     2: 0.5,
-    #     3: 0.9,
-    #     4: 12.1,
-    # }
     assert r.nodeid_to_duration == {
         NIDS[0]: DURATIONS[0],
         NIDS[1]: DURATIONS[1],
@@ -70,13 +67,6 @@ def test_outcome():
         NIDS[3]: DURATIONS[3],
         NIDS[4]: DURATIONS[4],
     }
-    # assert r.nindex_to_lindices == {
-    #     0: set([0]),
-    #     1: set([0,1,2]),
-    #     2: set([0,3]),
-    #     3: set([2]),
-    #     4: set([2]),
-    # }
     assert r.nodeid_to_lindices == {
         NIDS[0]: set([0]),
         NIDS[1]: set([0,1,2]),
@@ -85,105 +75,12 @@ def test_outcome():
         NIDS[4]: set([2]),
     }
 
-    r2 = Outcome.from_file('/tmp/test.uncov.json')
-    # assert r2.nindex_to_duration == r.nindex_to_duration
+    r2 = from_file('/tmp/test.uncov.json')
+
     assert r2.nodeid_to_duration == r.nodeid_to_duration
-
-    # {
-    #     0: 0.1,
-    #     1: 0.4,
-    #     2: 0.5,
-    #     3: 0.9,
-    #     4: 12.1,
-    # }
-    # assert r2.nindex_to_lindices == r.nindex_to_lindices
     assert r2.nodeid_to_lindices == r.nodeid_to_lindices
-    # {
-    #     0: set([0]),
-    #     1: set([0,1,2]),
-    #     2: set([0,3]),
-    #     3: set([2]),
-    #     4: set([2]),
-    # }
     assert r2._locs.index_to_val == r._locs.index_to_val
-    # assert r2.nodeids.index_to_val == r.nodeids.index_to_val
-
-def test_outcome_oldformat():
-    r = Outcome()
-
-    r.register_coverage(NIDS[0], LOCS[0])
-    r.register_coverage(NIDS[1], LOCS[0])
-    r.register_coverage(NIDS[1], LOCS[1])
-    r.register_coverage(NIDS[1], LOCS[2])
-    r.register_coverage(NIDS[2], LOCS[0])
-    r.register_coverage(NIDS[2], LOCS[3])
-    r.register_coverage(NIDS[3], LOCS[2])
-    r.register_coverage(NIDS[4], LOCS[2])
-
-    r.register_coverage('dummy', LOCS[0])
-    r.discard_nodeid('dummy')
-    r._register_nodeid('dummy2')
-    r.discard_nodeid('dummy2')
-
-    r.register_duration(NIDS[0], DURATIONS[0])
-    r.register_duration(NIDS[1], DURATIONS[1])
-    r.register_duration(NIDS[2], DURATIONS[2])
-    r.register_duration(NIDS[3], DURATIONS[3])
-    r.register_duration(NIDS[4], DURATIONS[4])
-
-    to_file_oldformat(r, '/tmp/test.uncov.json')
-
-    # assert r.nindex_to_duration == {
-    #     0: 0.1,
-    #     1: 0.4,
-    #     2: 0.5,
-    #     3: 0.9,
-    #     4: 12.1,
-    # }
-    assert r.nodeid_to_duration == {
-        NIDS[0]: DURATIONS[0],
-        NIDS[1]: DURATIONS[1],
-        NIDS[2]: DURATIONS[2],
-        NIDS[3]: DURATIONS[3],
-        NIDS[4]: DURATIONS[4],
-    }
-    # assert r.nindex_to_lindices == {
-    #     0: set([0]),
-    #     1: set([0,1,2]),
-    #     2: set([0,3]),
-    #     3: set([2]),
-    #     4: set([2]),
-    # }
-    assert r.nodeid_to_lindices == {
-        NIDS[0]: set([0]),
-        NIDS[1]: set([0,1,2]),
-        NIDS[2]: set([0,3]),
-        NIDS[3]: set([2]),
-        NIDS[4]: set([2]),
-    }
-
-    r2 = r._from_file_oldformat('/tmp/test.uncov.json')
-    # assert r2.nindex_to_duration == r.nindex_to_duration
-    assert r2.nodeid_to_duration == r.nodeid_to_duration
-
-    # {
-    #     0: 0.1,
-    #     1: 0.4,
-    #     2: 0.5,
-    #     3: 0.9,
-    #     4: 12.1,
-    # }
-    # assert r2.nindex_to_lindices == r.nindex_to_lindices
-    assert r2.nodeid_to_lindices == r.nodeid_to_lindices
-    # {
-    #     0: set([0]),
-    #     1: set([0,1,2]),
-    #     2: set([0,3]),
-    #     3: set([2]),
-    #     4: set([2]),
-    # }
     assert r2._locs.index_to_val == r._locs.index_to_val
-    # assert r2.nodeids.index_to_val == r.nodeids.index_to_val
 
 
 def to_file_oldformat(outcome, path):
@@ -206,3 +103,29 @@ def to_file_oldformat(outcome, path):
     with open(path, 'w') as fo:
         json.dump(data, fo)
 
+
+def from_file_oldformat(path):
+    with open(path, 'r') as fi:
+        data = json.load(fi)
+
+    result = Outcome()
+
+    lindex_to_loc = {int(k): tuple(v) for k,v in data['lindex_to_loc'].items()}
+    for _, loc in sorted(lindex_to_loc.items()):
+        result._locs.register(loc)
+
+    nindex_to_nodeid = {int(k): v for k,v in data['nindex_to_nodeid'].items()}
+    _nodeids = IndexMapper()
+    for _, nodeid in sorted(nindex_to_nodeid.items()):
+        _nodeids.register(nodeid)
+
+    for nindex_str, lindices in sorted(data['nindex_to_lindices'].items()):
+        nodeid = _nodeids.from_index(int(nindex_str))
+        result.nodeid_to_lindices[nodeid] = set(map(int, lindices))
+
+    for nindex_str, duration in data['nindex_to_duration'].items():
+        nodeid = _nodeids.from_index(int(nindex_str))
+        result.nodeid_to_duration[nodeid] = float(duration)
+
+    result.assert_completeness()
+    return result

@@ -3,6 +3,7 @@
 import json
 
 from .index_mapper import IndexMapper
+from . import __version__
 
 class Outcome:
 
@@ -46,33 +47,6 @@ class Outcome:
         for nodeid, duration in self.nodeid_to_duration.items():
             if duration is None:
                 raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
-
-    @classmethod
-    def _from_file_oldformat(cls, path):
-        with open(path, 'r') as fi:
-            data = json.load(fi)
-
-        result = cls()
-
-        lindex_to_loc = {int(k): tuple(v) for k,v in data['lindex_to_loc'].items()}
-        for _, loc in sorted(lindex_to_loc.items()):
-            result._locs.register(loc)
-
-        nindex_to_nodeid = {int(k): v for k,v in data['nindex_to_nodeid'].items()}
-        _nodeids = IndexMapper()
-        for _, nodeid in sorted(nindex_to_nodeid.items()):
-            _nodeids.register(nodeid)
-
-        for nindex_str, lindices in sorted(data['nindex_to_lindices'].items()):
-            nodeid = _nodeids.from_index(int(nindex_str))
-            result.nodeid_to_lindices[nodeid] = set(map(int, lindices))
-
-        for nindex_str, duration in data['nindex_to_duration'].items():
-            nodeid = _nodeids.from_index(int(nindex_str))
-            result.nodeid_to_duration[nodeid] = float(duration)
-
-        result.assert_completeness()
-        return result
 
     def to_file(self, path):
         self.assert_completeness()
