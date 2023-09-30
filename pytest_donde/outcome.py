@@ -7,16 +7,22 @@ from . import index_mapper
 class Outcome:
 
     def __init__(self):
+        # terminology:
+        # nindex := index of a nodeid
+        # lindex := index of a loc
+        # loc := location := (file, line_no)
         self.locs = index_mapper.IndexMapper()
         self.nodeids = index_mapper.IndexMapper()
         self.nindex_to_lindices = {}
         self.nindex_to_duration = {}
 
-    # the object cannot distinguish
-    # "user forgot to register coverage info" from "no lines were covered".
+    # we can detect if a user forgot to register duration,
+    # but not if they forgot to set coverage,
+    # because a test could just visit no lines.
     # hence, the interface is asymmetric in this aspect.
-    # for coverage, we set `set()` as default and validate nothing.
-    # for durations we set `None` as default and later we validate if a float was set.
+    # for durations we default to `None` and later we validate for float.
+    # for coverage we default to `set()` and do no validation
+
     def _register_nodeid(self, nodeid):
         nindex = self.nodeids.register(nodeid)
         self.nindex_to_lindices.setdefault(nindex, set())
@@ -38,11 +44,11 @@ class Outcome:
         self.nindex_to_duration[nindex] = duration
 
     def assert_completeness(self):
+        # there can be tests, for which no location exists,
+        # because: they just visit no loc of the considered code base
+        #
         # there can be locations, for which no tests exists,
         # because: tests could have been removed via discard_nodeid
-        #
-        # there can be tests, for which ne location exists,
-        # because: they might just not visit the considered code base
         #
         # there cannot be tests, for which no duration exists
         for nindex, duration in self.nindex_to_duration.items():
