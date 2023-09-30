@@ -2,10 +2,10 @@
 
 import pytest
 
-from pytest_donde import index_mapper
+from pytest_donde.index_mapper import IndexMapper
 
 def test_index_mapper():
-    m = index_mapper.IndexMapper()
+    m = IndexMapper()
     m.register('b')
     m.register('a')
 

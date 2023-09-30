@@ -2,7 +2,7 @@
 
 import json
 
-from . import index_mapper
+from .index_mapper import IndexMapper
 
 class Outcome:
 
@@ -11,8 +11,8 @@ class Outcome:
         # nindex := index of a nodeid
         # lindex := index of a loc
         # loc := location := (file, line_no)
-        self.locs = index_mapper.IndexMapper()
-        self.nodeids = index_mapper.IndexMapper()
+        self.locs = IndexMapper()
+        self.nodeids = IndexMapper()
         self.nindex_to_lindices = {}
         self.nindex_to_duration = {}
 

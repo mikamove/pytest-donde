@@ -4,7 +4,7 @@ import pytest
 import _pytest
 
 from .outcome import Outcome
-from . import process_cov_output
+from .process_cov_output import process_cov_json
 
 def pytest_addoption(parser):
     group = parser.getgroup('donde')
@@ -70,8 +70,7 @@ class DondeRecordPlugin:
             item.stash[self.ITEM_DURATION_STASH_KEY] = call.duration
 
     def pytest_sessionfinish(self, session):
-        outcome = Outcome()
-        process_cov_output.process_cov_json(self.PATH_COV_JSON, outcome)
+        outcome = process_cov_json(self.PATH_COV_JSON)
 
         for item in session.items:
             marker = item.get_closest_marker('skip')

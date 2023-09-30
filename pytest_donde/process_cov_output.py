@@ -1,17 +1,21 @@
 # coding: utf-8
 
 import json
-
+from .outcome import Outcome
 from . import DondeException
 
-def process_cov_json(path_cov_json, outcome):
+def process_cov_json(path_cov_json):
     with open(path_cov_json, 'r') as fi:
         cov_data = json.load(fi)
 
+    outcome = Outcome()
+
     try:
-        return _process_cov_json(cov_data, outcome)
+        _process_cov_json(cov_data, outcome)
     except Exception as exc:
         raise DondeException(f'processing {path_cov_json}: {exc}') from exc
+
+    return outcome
 
 def _process_cov_json(cov_data, outcome):
     node_files = _get_node(cov_data, 'files')
