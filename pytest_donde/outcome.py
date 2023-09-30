@@ -77,7 +77,7 @@ class Outcome:
         for _, loc in sorted(lindex_to_loc.items()):
             result._locs.register(loc)
 
-        for nodeid, lindices in sorted(data[cls._key_nodeid_to_lindices].items()):
+        for nodeid, lindices in data[cls._key_nodeid_to_lindices].items():
             result.nodeid_to_lindices[nodeid] = set(map(int, lindices))
 
         for nodeid, duration in data[cls._key_nodeid_to_duration].items():
@@ -87,12 +87,8 @@ class Outcome:
         return result
 
     def discard_nodeid(self, nodeid):
-        if nodeid in self.nodeid_to_duration:
-            self.nodeid_to_duration.pop(nodeid)
+        self.nodeid_to_duration.pop(nodeid, None)
+        self.nodeid_to_lindices.pop(nodeid, None)
 
-        if nodeid in self.nodeid_to_lindices:
-            self.nodeid_to_lindices.pop(nodeid)
-
-    def iter_nodeids(self):
-        for nodeid in sorted(self.nodeid_to_duration):
-            yield nodeid
+    def nodeids(self):
+        return list(sorted(self.nodeid_to_duration))

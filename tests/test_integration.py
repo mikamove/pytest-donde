@@ -57,7 +57,7 @@ def test_recorder_example01(testdir, example_dir, pytest_args_additional, expect
 
     outcome = Outcome.from_file(os.path.join(str(testdir), path_json))
 
-    assert list(outcome.iter_nodeids()) == expected_node_ids_ordered
+    assert outcome.nodeids() == expected_node_ids_ordered
 
     for nodeid, duration in REF_DATA[example_dir]['durations'].items():
         if nodeid in expected_node_ids_ordered:

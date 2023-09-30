@@ -88,7 +88,7 @@ def to_file_oldformat(outcome, path):
 
     _nodeids = IndexMapper()
 
-    for nodeid in outcome.iter_nodeids():
+    for nodeid in outcome.nodeids():
         _nodeids.register(nodeid)
 
     data = {
