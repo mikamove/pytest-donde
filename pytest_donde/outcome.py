@@ -59,7 +59,7 @@ class Outcome:
 
         data = {
             self._key_donde_version: __version__,
-            self._key_lindex_to_loc: self._locs.index_to_val,
+            self._key_lindex_to_loc: self._locs.index_to_val(),
             self._key_nodeid_to_lindices: {k: list(sorted(v)) for k,v in self.nodeid_to_lindices.items()},
             self._key_nodeid_to_duration: self.nodeid_to_duration,
         }

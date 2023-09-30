@@ -75,5 +75,5 @@ def test_outcome():
 
     assert r2.nodeid_to_duration == r.nodeid_to_duration
     assert r2.nodeid_to_lindices == r.nodeid_to_lindices
-    assert r2._locs.index_to_val == r._locs.index_to_val
-    assert r2._locs.index_to_val == r._locs.index_to_val
+    assert r2._locs.index_to_val() == r._locs.index_to_val()
+    assert r2._locs.index_to_val() == r._locs.index_to_val()
