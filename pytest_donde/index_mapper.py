@@ -7,11 +7,8 @@ class IndexMapper:
         self.index_to_val = {}
         self.index = 0
 
-    def __contains__(self, val):
-        return val in self.val_to_index
-
     def register(self, val):
-        if val in self:
+        if val in self.val_to_index:
             return self.to_index(val)
 
         self.val_to_index[val] = self.index
@@ -25,8 +22,3 @@ class IndexMapper:
 
     def from_index(self, index):
         return self.index_to_val[index]
-
-    def discard(self, val):
-        index = self.val_to_index.pop(val)
-        self.index_to_val.pop(index)
-        return index
