@@ -86,7 +86,7 @@ class Outcome:
             result.nodeids.register(nodeid)
 
         for nindex, lindices in data['nindex_to_lindices'].items():
-            result.nindex_to_lindices[int(nindex)] = {int(lindex) for lindex in lindices}
+            result.nindex_to_lindices[int(nindex)] = set(map(int, lindices))
 
         for nindex, duration in data['nindex_to_duration'].items():
             result.nindex_to_duration[int(nindex)] = float(duration)
