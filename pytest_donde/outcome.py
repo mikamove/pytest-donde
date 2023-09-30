@@ -73,15 +73,17 @@ class Outcome:
 
         result = cls()
 
-        lindex_to_loc = {int(k): tuple(v) for k,v in data[cls._key_lindex_to_loc].items()}
+        json_lindex_to_loc = data[cls._key_lindex_to_loc]
+        lindex_to_loc = {int(k): tuple(v) for k,v in json_lindex_to_loc.items()}
+
         for _, loc in sorted(lindex_to_loc.items()):
             result._locs.register(loc)
 
-        for nodeid, lindices in data[cls._key_nodeid_to_lindices].items():
-            result.nodeid_to_lindices[nodeid] = set(map(int, lindices))
+        json_nodeid_to_lindices = data[cls._key_nodeid_to_lindices]
+        result.nodeid_to_lindices = {k: set(map(int, v)) for k, v in json_nodeid_to_lindices.items()}
 
-        for nodeid, duration in data[cls._key_nodeid_to_duration].items():
-            result.nodeid_to_duration[nodeid] = float(duration)
+        json_nodeid_to_duration = data[cls._key_nodeid_to_duration]
+        result.nodeid_to_duration = {k: float(v) for k, v in json_nodeid_to_duration.items()}
 
         result.assert_completeness()
         return result
