@@ -45,6 +45,7 @@ class Outcome:
         # there cannot be tests, for which no duration exists
         for nodeid, duration in self.nodeid_to_duration.items():
             if duration is None:
+                # FIXME not covered
                 raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
 
 
@@ -73,17 +74,17 @@ class Outcome:
 
         result = cls()
 
-        json_lindex_to_loc = data[cls._key_lindex_to_loc]
-        lindex_to_loc = {int(k): tuple(v) for k,v in json_lindex_to_loc.items()}
+        node = data[cls._key_lindex_to_loc]
+        lindex_to_loc = {int(k): tuple(v) for k,v in node.items()}
 
         for _, loc in sorted(lindex_to_loc.items()):
             result._locs.register(loc)
 
-        json_nodeid_to_lindices = data[cls._key_nodeid_to_lindices]
-        result.nodeid_to_lindices = {k: set(map(int, v)) for k, v in json_nodeid_to_lindices.items()}
+        node = data[cls._key_nodeid_to_lindices]
+        result.nodeid_to_lindices = {k: set(map(int, v)) for k, v in node.items()}
 
-        json_nodeid_to_duration = data[cls._key_nodeid_to_duration]
-        result.nodeid_to_duration = {k: float(v) for k, v in json_nodeid_to_duration.items()}
+        node = data[cls._key_nodeid_to_duration]
+        result.nodeid_to_duration = {k: float(v) for k, v in node.items()}
 
         result.assert_completeness()
         return result

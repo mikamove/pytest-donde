@@ -63,7 +63,7 @@ class DondeRecordPlugin:
     PATH_COVERAGERC = '.donde_coveragerc'
     PATH_COV_JSON = 'coverage.json'
 
-    @pytest.mark.hookwrapper
+    @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, call, item):
         yield
         if call.when == 'call':
@@ -75,11 +75,8 @@ class DondeRecordPlugin:
         for item in session.items:
             marker = item.get_closest_marker('skip')
             if marker and marker.name == 'skip':
-                try:
-                    outcome.discard_nodeid(item.nodeid)
-                except KeyError:
-                    pass
-
+                # FIXME not covered
+                outcome.discard_nodeid(item.nodeid)
                 continue
 
             duration = item.stash[self.ITEM_DURATION_STASH_KEY]
