@@ -47,14 +47,20 @@ class Outcome:
             if duration is None:
                 raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
 
+
+    _key_donde_version = 'donde_version'
+    _key_lindex_to_loc = 'lindex_to_loc'
+    _key_nodeid_to_lindices = 'nodeid_to_lindices'
+    _key_nodeid_to_duration = 'nodeid_to_duration'
+
     def to_file(self, path):
         self.assert_completeness()
 
         data = {
-            'donde_version': __version__,
-            'lindex_to_loc': self._locs.index_to_val,
-            'nodeid_to_lindices': {k: list(sorted(v)) for k,v in self.nodeid_to_lindices.items()},
-            'nodeid_to_duration': self.nodeid_to_duration,
+            self._key_donde_version: __version__,
+            self._key_lindex_to_loc: self._locs.index_to_val,
+            self._key_nodeid_to_lindices: {k: list(sorted(v)) for k,v in self.nodeid_to_lindices.items()},
+            self._key_nodeid_to_duration: self.nodeid_to_duration,
         }
 
         with open(path, 'w') as fo:
@@ -67,14 +73,14 @@ class Outcome:
 
         result = cls()
 
-        lindex_to_loc = {int(k): tuple(v) for k,v in data['lindex_to_loc'].items()}
+        lindex_to_loc = {int(k): tuple(v) for k,v in data[cls._key_lindex_to_loc].items()}
         for _, loc in sorted(lindex_to_loc.items()):
             result._locs.register(loc)
 
-        for nodeid, lindices in sorted(data['nodeid_to_lindices'].items()):
+        for nodeid, lindices in sorted(data[cls._key_nodeid_to_lindices].items()):
             result.nodeid_to_lindices[nodeid] = set(map(int, lindices))
 
-        for nodeid, duration in data['nodeid_to_duration'].items():
+        for nodeid, duration in data[cls._key_nodeid_to_duration].items():
             result.nodeid_to_duration[nodeid] = float(duration)
 
         result.assert_completeness()
