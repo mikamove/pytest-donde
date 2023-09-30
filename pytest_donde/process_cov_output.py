@@ -19,13 +19,13 @@ def process_cov_json(path_cov_json):
 
 def _process_cov_json(cov_data, outcome):
 
-    node_files = _get_node(cov_data, 'files')
+    json_files = _get_node(cov_data, 'files')
 
-    for fname, fname_data in sorted(node_files.items()):
+    for fname, fname_data in sorted(json_files.items()):
 
-        node_contexts = _get_node(fname_data, 'contexts')
+        json_contexts = _get_node(fname_data, 'contexts')
 
-        for line_no_str, contexts in sorted(node_contexts.items()):
+        for line_no_str, contexts in sorted(json_contexts.items()):
             loc = (fname, int(line_no_str))
             for context in contexts:
                 if not context.endswith('|run'):
