@@ -30,10 +30,6 @@ DURATIONS = [
 
 def test_outcome():
     r = Outcome()
-    r.register_location(LOCS[0])
-    r.register_location(LOCS[1])
-    r.register_location(LOCS[2])
-    r.register_location(LOCS[3])
 
     r.register_coverage(NIDS[0], LOCS[0])
     r.register_coverage(NIDS[1], LOCS[0])
@@ -46,7 +42,7 @@ def test_outcome():
 
     r.register_coverage('dummy', LOCS[0])
     r.discard_nodeid('dummy')
-    r.register_nodeid('dummy2')
+    r._register_nodeid('dummy2')
     r.discard_nodeid('dummy2')
 
     r.register_duration(NIDS[0], DURATIONS[0])
