@@ -16,11 +16,11 @@ class Outcome:
         self.nodeid_to_duration = {}
 
     # we can detect if a user forgot to register duration,
-    # but not if they forgot to set coverage,
-    # because a test could just visit no lines.
-    # hence, the interface is asymmetric in this aspect.
-    # for durations we default to `None` and later we validate for float.
-    # for coverage we default to `set()` and do no validation
+    # but not if they forgot to register coverage,
+    # because a test could just simply cover zero lines.
+    # hence, we act asymmetrically:
+    # - for durations we default to `None` and later require float for completeness.
+    # - for coverage we default to `set()` and do no validation
 
     def _register_nodeid(self, nodeid):
         self.nodeid_to_lindices.setdefault(nodeid, set())
@@ -33,7 +33,6 @@ class Outcome:
 
     def register_duration(self, nodeid, duration):
         self._register_nodeid(nodeid)
-        # FIXME should we warn on repeated attempts to set this value?
         self.nodeid_to_duration[nodeid] = duration
 
     def assert_completeness(self):
@@ -52,6 +51,7 @@ class Outcome:
         self.assert_completeness()
 
         data = {
+            'donde_version': __version__,
             'lindex_to_loc': self._locs.index_to_val,
             'nodeid_to_lindices': {k: list(sorted(v)) for k,v in self.nodeid_to_lindices.items()},
             'nodeid_to_duration': self.nodeid_to_duration,
