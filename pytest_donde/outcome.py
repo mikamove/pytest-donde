@@ -28,7 +28,7 @@ class Outcome:
 
     def register_coverage(self, nodeid, loc):
         self._register_nodeid(nodeid)
-        lindex = self._locs.register(loc)
+        lindex = self._locs.to_index(loc)
         self.nodeid_to_lindices[nodeid].add(lindex)
 
     def register_duration(self, nodeid, duration):
@@ -78,7 +78,7 @@ class Outcome:
         lindex_to_loc = {int(k): tuple(v) for k,v in node.items()}
 
         for _, loc in sorted(lindex_to_loc.items()):
-            result._locs.register(loc)
+            result._locs.to_index(loc)
 
         node = data[cls._key_nodeid_to_lindices]
         result.nodeid_to_lindices = {k: set(map(int, v)) for k, v in node.items()}
