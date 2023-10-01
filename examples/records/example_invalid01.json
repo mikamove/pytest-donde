@@ -1,0 +1,12 @@
+{
+    "nodeid_to_lindices": {
+	"test1": [0, 2],
+	"test2": [1],
+	"test3": [1, 2]
+    },
+    "nodeid_to_duration": {
+	"test1": 0.01,
+	"test2": 0.02,
+	"test3": 0.03
+    }
+}

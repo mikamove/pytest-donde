@@ -1,0 +1,12 @@
+{
+    "lindex_to_loc": {
+	"0": ["src1.py", 1],
+	"1": ["src1.py", 2],
+	"2": ["src1.py", 4]
+    },
+    "nodeid_to_duration": {
+	"test1": 0.01,
+	"test2": 0.02,
+	"test3": 0.03
+    }
+}
