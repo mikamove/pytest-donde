@@ -86,13 +86,13 @@ examples_invalid = [
     ('examples/records/example_invalid03.json',
      'nodeid_to_duration.*not found in json'),
     ('examples/records/example_invalid04.json',
-     'Inconsistent record.*Missing duration for node test3'),
+     'Inconsistent record.*Missing duration for nodeid "test3"'),
     ('examples/records/example_invalid05.json',
-     'Inconsistent record.*Duplicate reference to.*(\'src1.py\', 1).*'),
+     'Inconsistent record.*Duplicate index definition for.* src1.py:1.*'),
     ('examples/records/example_invalid07.json',
-     'Inconsistent record.*Missing definition for location index 77 referenced by nodeid test3'),
+     'Inconsistent record.*Missing definition for location index 77 referenced by nodeid "test3"'),
     ('examples/records/example_invalid07.json',
-     'Inconsistent record.*Missing definition for location index 77 referenced by nodeid test3'),
+     'Inconsistent record.*Missing definition for location index 77 referenced by nodeid "test3"'),
 ]
 
 def test_record_setup_behavior_invalid():
@@ -102,7 +102,7 @@ def test_record_setup_behavior_invalid():
 
     rec.nodeid_to_duration[NIDS[0]] = None
 
-    with pytest.raises(Exception, match=r'Inconsistent record.*Missing duration for node test_a.py::test_x\[1-2-3\]'):
+    with pytest.raises(Exception, match=r'Inconsistent record.*Missing duration for nodeid "test_a.py::test_x\[1-2-3\]"'):
         rec.assert_completeness()
 
 @pytest.mark.parametrize('example_name, match', [

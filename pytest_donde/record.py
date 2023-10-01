@@ -44,19 +44,19 @@ class Record:
 
         for nodeid, duration in self.nodeid_to_duration.items():
             if duration is None:
-                raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
+                raise Exception(f'Inconsistent record: Missing duration for nodeid "{nodeid}"')
 
         nodeids_with_duration = set(self.nodeid_to_duration)
         nodeids_with_coverage = set(self.nodeid_to_lindices)
         for nodeid in nodeids_with_coverage.difference(nodeids_with_duration):
-            raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
+            raise Exception(f'Inconsistent record: Missing duration for nodeid "{nodeid}"')
 
         # TODO add quotes to all msgs
 
         lindex_to_val = self._locs.index_to_val()
         for nodeid, lindices in self.nodeid_to_lindices.items():
             for lindex in lindices.difference(lindex_to_val):
-                raise Exception(f'Inconsistent record: Missing definition for location index {lindex} referenced by nodeid {nodeid}')
+                raise Exception(f'Inconsistent record: Missing definition for location index {lindex} referenced by nodeid "{nodeid}"')
 
     _key_donde_version = 'donde_version'
     _key_lindex_to_loc = 'lindex_to_loc'
@@ -90,7 +90,7 @@ class Record:
             try:
                 record._locs.to_index(loc, exist_ok=False)
             except ValueError as exc:
-                raise Exception(f'Inconsistent record: Duplicate reference to location {loc}') from exc
+                raise Exception(f'Inconsistent record: Duplicate index definition for location {loc[0]}:{loc[1]}') from exc
 
         node = _get_node(data, cls._key_nodeid_to_lindices)
         record.nodeid_to_lindices = {k: set(map(int, v)) for k, v in node.items()}
