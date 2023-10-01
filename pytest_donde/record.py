@@ -51,8 +51,6 @@ class Record:
         for nodeid in nodeids_with_coverage.difference(nodeids_with_duration):
             raise Exception(f'Inconsistent record: Missing duration for nodeid "{nodeid}"')
 
-        # TODO add quotes to all msgs
-
         lindex_to_val = self._locs.index_to_val()
         for nodeid, lindices in self.nodeid_to_lindices.items():
             for lindex in lindices.difference(lindex_to_val):
