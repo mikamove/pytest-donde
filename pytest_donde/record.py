@@ -48,6 +48,18 @@ class Record:
                 # FIXME not covered
                 raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
 
+        nodeids_with_duration = set(self.nodeid_to_duration)
+        nodeids_with_coverage = set(self.nodeid_to_lindices)
+
+        # TODO add quotes to all msgs
+        for nodeid in nodeids_with_coverage.difference(nodeids_with_duration):
+            raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
+
+        lindex_to_val = self._locs.index_to_val()
+        for nodeid, lindices in self.nodeid_to_lindices.items():
+            for lindex in lindices:
+                if lindex not in lindex_to_val:
+                    raise Exception(f'Inconsistent record: Missing definition for location index {lindex} referenced by nodeid {nodeid}')
 
     _key_donde_version = 'donde_version'
     _key_lindex_to_loc = 'lindex_to_loc'
@@ -74,16 +86,19 @@ class Record:
 
         record = cls()
 
-        node = data[cls._key_lindex_to_loc]
+        node = _get_node(data, cls._key_lindex_to_loc)
         lindex_to_loc = {int(k): tuple(v) for k,v in node.items()}
 
         for _, loc in sorted(lindex_to_loc.items()):
-            record._locs.to_index(loc)
+            try:
+                record._locs.to_index(loc, exist_ok=False)
+            except ValueError as exc:
+                raise Exception(f'Inconsistent record: Duplicate reference to location {loc}') from exc
 
-        node = data[cls._key_nodeid_to_lindices]
+        node = _get_node(data, cls._key_nodeid_to_lindices)
         record.nodeid_to_lindices = {k: set(map(int, v)) for k, v in node.items()}
 
-        node = data[cls._key_nodeid_to_duration]
+        node = _get_node(data, cls._key_nodeid_to_duration)
         record.nodeid_to_duration = {k: float(v) for k, v in node.items()}
 
         record.assert_completeness()
@@ -95,3 +110,13 @@ class Record:
 
     def nodeids(self):
         return list(sorted(self.nodeid_to_duration))
+
+    def nodeid_to_locs(self, nodeid):
+        lindex_to_val = self._locs.index_to_val()
+        return set(lindex_to_val[lindex] for lindex in self.nodeid_to_lindices[nodeid])
+
+def _get_node(dct, key):
+    try:
+        return dct[key]
+    except KeyError as exc:
+        raise Exception(f'node "{key}" not found in json file') from exc

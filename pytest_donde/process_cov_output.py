@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import json
-from .record import Record
+from .record import Record, _get_node
 from . import DondeException
 
 def process_cov_json(path_cov_json):
@@ -31,9 +31,3 @@ def _process_cov_json(cov_data):
                 nodeid = context[:-4]
                 record.register_coverage(nodeid, loc)
     return record
-
-def _get_node(dct, key):
-    try:
-        return dct[key]
-    except KeyError as exc:
-        raise Exception(f'node "{key}" not found') from exc

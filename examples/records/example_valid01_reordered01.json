@@ -1,0 +1,17 @@
+{
+    "nodeid_to_lindices": {
+	"test2": [1],
+	"test1": [2, 0],
+	"test3": [2, 1]
+    },
+    "nodeid_to_duration": {
+	"test1": 0.01,
+	"test3": 0.03,
+	"test2": 0.02
+    },
+    "lindex_to_loc": {
+	"1": ["src1.py", 2],
+	"2": ["src1.py", 4],
+	"0": ["src1.py", 1]
+    }
+}

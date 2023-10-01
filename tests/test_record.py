@@ -77,3 +77,45 @@ def test_record():
     assert r2.nodeid_to_lindices == r.nodeid_to_lindices
     assert r2._locs.index_to_val() == r._locs.index_to_val()
     assert r2._locs.index_to_val() == r._locs.index_to_val()
+
+def assert_equality(record1, record2):
+    assert record1.nodeids() == record2.nodeids()
+    for nodeid in record1.nodeids():
+        assert record1.nodeid_to_locs(nodeid) == record2.nodeid_to_locs(nodeid)
+    assert record1.nodeid_to_duration == pytest.approx(record2.nodeid_to_duration)
+
+@pytest.mark.parametrize('example_name, match', [
+    ('examples/records/example_valid01.json', None),
+    ('examples/records/example_valid01_reordered01.json', None),
+    ('examples/records/example_valid02.json', None),
+    ('examples/records/example_invalid01.json',
+     'lindex_to_loc.*not found in json'),
+    ('examples/records/example_invalid02.json',
+     'nodeid_to_lindices.*not found in json'),
+    ('examples/records/example_invalid03.json',
+     'nodeid_to_duration.*not found in json'),
+    ('examples/records/example_invalid04.json',
+     'Inconsistent record.*Missing duration for node test3'),
+    ('examples/records/example_invalid05.json',
+     'Inconsistent record.*Duplicate reference to.*(\'src1.py\', 1).*'),
+    ('examples/records/example_invalid07.json',
+     'Inconsistent record.*Missing definition for location index 77 referenced by nodeid test3'),
+    ('examples/records/example_invalid07.json',
+     'Inconsistent record.*Missing definition for location index 77 referenced by nodeid test3'),
+])
+def test_json_example_validity(example_name, match):
+    if match is None:
+        Record.from_file(example_name)
+    else:
+        with pytest.raises(Exception, match=match):
+            Record.from_file(example_name)
+
+@pytest.mark.parametrize('example_name1, example_name2', [
+    ('examples/records/example_valid01.json', 'examples/records/example_valid01_reordered01.json'),
+])
+def test_json_example_equivalence(example_name1, example_name2):
+
+    rec1 = Record.from_file(example_name1)
+    rec2 = Record.from_file(example_name2)
+    assert_equality(rec1, rec2)
+

@@ -1,0 +1,12 @@
+{
+    "lindex_to_loc": {
+	"0": ["src1.py", 1],
+	"1": ["src1.py", 2],
+	"2": ["src1.py", 4]
+    },
+    "nodeid_to_lindices": {
+	"test1": [0, 2],
+	"test2": [1],
+	"test3": [1, 2]
+    }
+}
