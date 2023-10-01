@@ -41,8 +41,7 @@ class Record:
         #
         # there can be locations, for which no tests exists,
         # because: tests could have been removed via discard_nodeid
-        #
-        # there cannot be tests, for which no duration exists
+
         for nodeid, duration in self.nodeid_to_duration.items():
             if duration is None:
                 # FIXME not covered
@@ -50,16 +49,15 @@ class Record:
 
         nodeids_with_duration = set(self.nodeid_to_duration)
         nodeids_with_coverage = set(self.nodeid_to_lindices)
-
-        # TODO add quotes to all msgs
         for nodeid in nodeids_with_coverage.difference(nodeids_with_duration):
             raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
 
+        # TODO add quotes to all msgs
+
         lindex_to_val = self._locs.index_to_val()
         for nodeid, lindices in self.nodeid_to_lindices.items():
-            for lindex in lindices:
-                if lindex not in lindex_to_val:
-                    raise Exception(f'Inconsistent record: Missing definition for location index {lindex} referenced by nodeid {nodeid}')
+            for lindex in lindices.difference(lindex_to_val):
+                raise Exception(f'Inconsistent record: Missing definition for location index {lindex} referenced by nodeid {nodeid}')
 
     _key_donde_version = 'donde_version'
     _key_lindex_to_loc = 'lindex_to_loc'
