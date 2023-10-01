@@ -23,7 +23,9 @@ from pytest_donde import Record
 record = Record.from_file('donde.json')
 ```
 
-A demo example (which is trivial, because it uses only durations, not coverage):
+A nontrivial example plugin using donde is [pytest-pitch](https://github.com/mikamove/pytest-pitch)
+
+A simple demo example plugin (trivial, because it uses only durations, not coverage):
 
 ```python
 
