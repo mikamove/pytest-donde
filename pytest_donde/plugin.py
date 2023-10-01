@@ -87,7 +87,7 @@ class DondeRecordPlugin:
     def pytest_terminal_summary(self, terminalreporter):
         path = terminalreporter.config.known_args_namespace.donde_output_path
         terminalreporter.write(f'--------------------- donde ---------------------\n')
-        terminalreporter.write(f'donde results written to {path}')
+        terminalreporter.write(f'donde record written to {path}')
 
     coveragerc_content = '''[json]
 show_contexts = True
