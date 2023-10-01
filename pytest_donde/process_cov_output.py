@@ -1,23 +1,21 @@
 # coding: utf-8
 
 import json
-from .outcome import Outcome
+from .record import Record
 from . import DondeException
 
 def process_cov_json(path_cov_json):
     with open(path_cov_json, 'r') as fi:
         cov_data = json.load(fi)
 
-    outcome = Outcome()
-
     try:
-        _process_cov_json(cov_data, outcome)
+        return _process_cov_json(cov_data)
     except Exception as exc:
         raise DondeException(f'processing {path_cov_json}: {exc}') from exc
 
-    return outcome
+def _process_cov_json(cov_data):
 
-def _process_cov_json(cov_data, outcome):
+    record = Record()
 
     json_files = _get_node(cov_data, 'files')
 
@@ -31,7 +29,8 @@ def _process_cov_json(cov_data, outcome):
                 if not context.endswith('|run'):
                     continue
                 nodeid = context[:-4]
-                outcome.register_coverage(nodeid, loc)
+                record.register_coverage(nodeid, loc)
+    return record
 
 def _get_node(dct, key):
     try:

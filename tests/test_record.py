@@ -4,7 +4,7 @@ import json
 import pytest
 
 from pytest_donde import process_cov_output
-from pytest_donde.outcome import Outcome
+from pytest_donde.record import Record
 from pytest_donde.index_mapper import IndexMapper
 
 
@@ -31,8 +31,8 @@ DURATIONS = [
     12.1,
 ]
 
-def test_outcome():
-    r = Outcome()
+def test_record():
+    r = Record()
 
     r.register_coverage(NIDS[0], LOCS[0])
     r.register_coverage(NIDS[1], LOCS[0])
@@ -71,7 +71,7 @@ def test_outcome():
         NIDS[4]: set([2]),
     }
 
-    r2 = Outcome.from_file('/tmp/test.uncov.json')
+    r2 = Record.from_file('/tmp/test.uncov.json')
 
     assert r2.nodeid_to_duration == r.nodeid_to_duration
     assert r2.nodeid_to_lindices == r.nodeid_to_lindices

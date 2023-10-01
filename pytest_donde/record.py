@@ -5,7 +5,7 @@ import json
 from .index_mapper import IndexMapper
 from . import __version__
 
-class Outcome:
+class Record:
 
     def __init__(self):
         # terminology:
@@ -72,22 +72,22 @@ class Outcome:
         with open(path, 'r') as fi:
             data = json.load(fi)
 
-        result = cls()
+        record = cls()
 
         node = data[cls._key_lindex_to_loc]
         lindex_to_loc = {int(k): tuple(v) for k,v in node.items()}
 
         for _, loc in sorted(lindex_to_loc.items()):
-            result._locs.to_index(loc)
+            record._locs.to_index(loc)
 
         node = data[cls._key_nodeid_to_lindices]
-        result.nodeid_to_lindices = {k: set(map(int, v)) for k, v in node.items()}
+        record.nodeid_to_lindices = {k: set(map(int, v)) for k, v in node.items()}
 
         node = data[cls._key_nodeid_to_duration]
-        result.nodeid_to_duration = {k: float(v) for k, v in node.items()}
+        record.nodeid_to_duration = {k: float(v) for k, v in node.items()}
 
-        result.assert_completeness()
-        return result
+        record.assert_completeness()
+        return record
 
     def discard_nodeid(self, nodeid):
         self.nodeid_to_duration.pop(nodeid, None)
