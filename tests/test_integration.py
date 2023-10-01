@@ -31,6 +31,8 @@ REF_DATA = {
     }
 }
 
+REF_DATA['examples/example02'] = REF_DATA['examples/example01']
+
 @pytest.mark.parametrize('example_dir, pytest_args_additional, expected_node_ids_ordered', [
     ('examples/example01', tuple(), [
         'test_src.py::test_f[0-0-0-2]',
@@ -43,6 +45,11 @@ REF_DATA = {
         'test_src.py::test_f[1-1-1--2]',
     ]),
     ('examples/example01', ('-k 0-0', ), [
+        'test_src.py::test_f[0-0-0-2]',
+        'test_src.py::test_f[0-0-1-0]',
+        'test_src.py::test_f[1-0-0-14]',
+    ]),
+    ('examples/example02', tuple(), [
         'test_src.py::test_f[0-0-0-2]',
         'test_src.py::test_f[0-0-1-0]',
         'test_src.py::test_f[1-0-0-14]',
