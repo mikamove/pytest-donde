@@ -44,7 +44,6 @@ class Record:
 
         for nodeid, duration in self.nodeid_to_duration.items():
             if duration is None:
-                # FIXME not covered
                 raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
 
         nodeids_with_duration = set(self.nodeid_to_duration)

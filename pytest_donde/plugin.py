@@ -32,9 +32,9 @@ def pytest_addoption(parser):
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_load_initial_conftests(early_config):
     if early_config.known_args_namespace.donde_source is not None:
-        path_covrc = DondeRecordPlugin.PATH_COVERAGERC
-        DondeRecordPlugin.create_temp_coveragerc(path_covrc)
-        _reconfigure_cov_parameters(early_config.known_args_namespace, path_covrc)
+        path = DondeRecordPlugin._path_coveragerc
+        DondeRecordPlugin.create_temp_coveragerc(path)
+        _reconfigure_cov_parameters(early_config.known_args_namespace, path)
 
     yield
 
@@ -58,19 +58,19 @@ def _reconfigure_cov_parameters(options, path_covrc):
 
 class DondeRecordPlugin:
 
-    ITEM_DURATION_STASH_KEY = _pytest.stash.StashKey[float]()
+    _item_duration_stash_key = _pytest.stash.StashKey[float]()
 
-    PATH_COVERAGERC = '.donde_coveragerc'
-    PATH_COV_JSON = 'coverage.json'
+    _path_coveragerc = '.donde_coveragerc'
+    _path_cov_json = 'coverage.json'
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, call, item):
         yield
         if call.when == 'call':
-            item.stash[self.ITEM_DURATION_STASH_KEY] = call.duration
+            item.stash[self._item_duration_stash_key] = call.duration
 
     def pytest_sessionfinish(self, session):
-        record = process_cov_json(self.PATH_COV_JSON)
+        record = process_cov_json(self._path_cov_json)
 
         for item in session.items:
             marker = item.get_closest_marker('skip')
@@ -79,7 +79,7 @@ class DondeRecordPlugin:
                 record.discard_nodeid(item.nodeid)
                 continue
 
-            duration = item.stash[self.ITEM_DURATION_STASH_KEY]
+            duration = item.stash[self._item_duration_stash_key]
             record.register_duration(item.nodeid, duration)
 
         record.to_file(session.config.getoption('donde_output_path'))
