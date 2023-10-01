@@ -3,7 +3,7 @@
 import pytest
 import _pytest
 
-from .outcome import Outcome
+from .record import Record
 from .process_cov_output import process_cov_json
 
 def pytest_addoption(parser):
@@ -14,7 +14,7 @@ def pytest_addoption(parser):
         dest='donde_source',
         metavar='PATH',
         default=None,
-        help='record coverage-and-time analysis for the source code directory PATH',
+        help='write record of coverage-and-time analysis for the source code directory PATH',
     )
     group.addoption(
         '--donde-to',
@@ -22,7 +22,7 @@ def pytest_addoption(parser):
         metavar='FILE',
         dest='donde_output_path',
         default='donde.json',
-        help='specify alternative target path for analysis outcome',
+        help='specify alternative target path for record file',
     )
 
 # FIXME this solution to control pytest_cov strongly relies on their implementation details
@@ -70,19 +70,19 @@ class DondeRecordPlugin:
             item.stash[self.ITEM_DURATION_STASH_KEY] = call.duration
 
     def pytest_sessionfinish(self, session):
-        outcome = process_cov_json(self.PATH_COV_JSON)
+        record = process_cov_json(self.PATH_COV_JSON)
 
         for item in session.items:
             marker = item.get_closest_marker('skip')
             if marker and marker.name == 'skip':
                 # FIXME not covered
-                outcome.discard_nodeid(item.nodeid)
+                record.discard_nodeid(item.nodeid)
                 continue
 
             duration = item.stash[self.ITEM_DURATION_STASH_KEY]
-            outcome.register_duration(item.nodeid, duration)
+            record.register_duration(item.nodeid, duration)
 
-        outcome.to_file(session.config.getoption('donde_output_path'))
+        record.to_file(session.config.getoption('donde_output_path'))
 
     def pytest_terminal_summary(self, terminalreporter):
         path = terminalreporter.config.known_args_namespace.donde_output_path
