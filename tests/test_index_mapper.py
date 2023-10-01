@@ -2,27 +2,22 @@
 
 import pytest
 
-from pytest_donde import index_mapper
+from pytest_donde.index_mapper import IndexMapper
 
 def test_index_mapper():
-    m = index_mapper.IndexMapper()
-    m.register('b')
-    m.register('a')
-
-    assert m.index_to_val == {0: 'b', 1: 'a'}
-
-    assert m.to_index('z') == 2
-
-    assert m.index_to_val == {0: 'b', 1: 'a', 2: 'z'}
+    m = IndexMapper()
+    assert m.to_index('b') == 0
+    assert m.index_to_val() == {0: 'b', }
 
     assert m.to_index('a') == 1
+    assert m.index_to_val() == {0: 'b', 1: 'a', }
+
+    assert m.to_index('a') == 1
+    assert m.index_to_val() == {0: 'b', 1: 'a', }
+
     assert m.to_index('b') == 0
-    assert m.from_index(1) == 'a'
-    assert m.from_index(0) == 'b'
+    assert m.index_to_val() == {0: 'b', 1: 'a', }
 
-    with pytest.raises(Exception, match='attempt to register an already known value'):
-        m.register('a')
+    assert m.to_index('c') == 2
+    assert m.index_to_val() == {0: 'b', 1: 'a', 2: 'c', }
 
-
-    with pytest.raises(KeyError):
-        m.from_index(99)

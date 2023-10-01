@@ -57,14 +57,14 @@ def test_recorder_example01(testdir, example_dir, pytest_args_additional, expect
 
     outcome = Outcome.from_file(os.path.join(str(testdir), path_json))
 
-    assert list(outcome.iter_nodeids()) == expected_node_ids_ordered
+    assert outcome.nodeids() == expected_node_ids_ordered
 
     for nodeid, duration in REF_DATA[example_dir]['durations'].items():
         if nodeid in expected_node_ids_ordered:
-            assert outcome.nodeid_to_duration(nodeid) == pytest.approx(duration, abs=1e-2)
+            assert outcome.nodeid_to_duration[nodeid] == pytest.approx(duration, abs=1e-2)
         else:
             with pytest.raises(KeyError):
-                outcome.nodeid_to_duration(nodeid)
+                outcome.nodeid_to_duration[nodeid]
 
 def test_plugin_deactivated(testdir):
     _setup_example(testdir, 'examples/example01')

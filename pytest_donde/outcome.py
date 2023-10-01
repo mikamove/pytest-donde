@@ -2,39 +2,66 @@
 
 import json
 
-from . import index_mapper
+from .index_mapper import IndexMapper
+from . import __version__
 
 class Outcome:
 
     def __init__(self):
-        self.locs = index_mapper.IndexMapper()
-        self.nodeids = index_mapper.IndexMapper()
-        self.nindex_to_lindices = {}
-        self.nindex_to_duration = {}
+        # terminology:
+        # lindex := index of a loc
+        # loc := location := (file, line_no)
+        self._locs = IndexMapper()
+        self.nodeid_to_lindices = {}
+        self.nodeid_to_duration = {}
 
-    def register_location(self, loc):
-        return self.locs.register(loc)
+    # we can detect if a user forgot to register duration,
+    # but not if they forgot to register coverage,
+    # because a test could just simply cover zero lines.
+    # hence, we act asymmetrically:
+    # - for durations we default to `None` and later require float for completeness.
+    # - for coverage we default to `set()` and do no validation
 
-    def register_nodeid(self, nodeid):
-        nindex = self.nodeids.register(nodeid, exists_ok=True)
-        self.nindex_to_lindices.setdefault(nindex, set())
-        return nindex
+    def _register_nodeid(self, nodeid):
+        self.nodeid_to_lindices.setdefault(nodeid, set())
+        self.nodeid_to_duration.setdefault(nodeid, None)
 
     def register_coverage(self, nodeid, loc):
-        nindex = self.register_nodeid(nodeid)
-        lindex = self.locs.to_index(loc)
-        self.nindex_to_lindices[nindex].add(lindex)
+        self._register_nodeid(nodeid)
+        lindex = self._locs.to_index(loc)
+        self.nodeid_to_lindices[nodeid].add(lindex)
 
     def register_duration(self, nodeid, duration):
-        nindex = self.nodeids.to_index(nodeid)
-        self.nindex_to_duration[nindex] = duration
+        self._register_nodeid(nodeid)
+        self.nodeid_to_duration[nodeid] = duration
+
+    def assert_completeness(self):
+        # there can be tests, for which no location exists,
+        # because: they just visit no loc of the considered code base
+        #
+        # there can be locations, for which no tests exists,
+        # because: tests could have been removed via discard_nodeid
+        #
+        # there cannot be tests, for which no duration exists
+        for nodeid, duration in self.nodeid_to_duration.items():
+            if duration is None:
+                # FIXME not covered
+                raise Exception(f'Inconsistent record: Missing duration for node {nodeid}')
+
+
+    _key_donde_version = 'donde_version'
+    _key_lindex_to_loc = 'lindex_to_loc'
+    _key_nodeid_to_lindices = 'nodeid_to_lindices'
+    _key_nodeid_to_duration = 'nodeid_to_duration'
 
     def to_file(self, path):
+        self.assert_completeness()
+
         data = {
-            'lindex_to_loc': self.locs.index_to_val,
-            'nindex_to_nodeid': self.nodeids.index_to_val,
-            'nindex_to_lindices': {k: list(sorted(v)) for k,v in self.nindex_to_lindices.items()},
-            'nindex_to_duration': self.nindex_to_duration,
+            self._key_donde_version: __version__,
+            self._key_lindex_to_loc: self._locs.index_to_val(),
+            self._key_nodeid_to_lindices: {k: list(sorted(v)) for k,v in self.nodeid_to_lindices.items()},
+            self._key_nodeid_to_duration: self.nodeid_to_duration,
         }
 
         with open(path, 'w') as fo:
@@ -47,37 +74,24 @@ class Outcome:
 
         result = cls()
 
-        lindex_to_loc = {int(k): tuple(v) for k,v in data['lindex_to_loc'].items()}
-        for lindex, loc in sorted(lindex_to_loc.items()):
-            result.locs.register(loc)
+        node = data[cls._key_lindex_to_loc]
+        lindex_to_loc = {int(k): tuple(v) for k,v in node.items()}
 
-        nindex_to_nodeid = {int(k): v for k,v in data['nindex_to_nodeid'].items()}
-        for nindex, nodeid in sorted(nindex_to_nodeid.items()):
-            result.nodeids.register(nodeid)
+        for _, loc in sorted(lindex_to_loc.items()):
+            result._locs.to_index(loc)
 
-        for nindex, lindices in data['nindex_to_lindices'].items():
-            result.nindex_to_lindices[int(nindex)] = {int(lindex) for lindex in lindices}
+        node = data[cls._key_nodeid_to_lindices]
+        result.nodeid_to_lindices = {k: set(map(int, v)) for k, v in node.items()}
 
-        for nindex, duration in data['nindex_to_duration'].items():
-            result.nindex_to_duration[int(nindex)] = float(duration)
+        node = data[cls._key_nodeid_to_duration]
+        result.nodeid_to_duration = {k: float(v) for k, v in node.items()}
 
+        result.assert_completeness()
         return result
 
-    def nodeid_to_duration(self, nodeid):
-        nindex = self.nodeids.to_index(nodeid)
-        return self.nindex_to_duration[nindex]
-
     def discard_nodeid(self, nodeid):
-        nindex = self.nodeids.discard(nodeid)
-        try:
-            self.nindex_to_duration.pop(nindex)
-        except KeyError:
-            pass
-        try:
-            self.nindex_to_lindices.pop(nindex)
-        except KeyError:
-            pass
+        self.nodeid_to_duration.pop(nodeid, None)
+        self.nodeid_to_lindices.pop(nodeid, None)
 
-    def iter_nodeids(self):
-        for nodeid in sorted(self.nodeids.val_to_index):
-            yield nodeid
+    def nodeids(self):
+        return list(sorted(self.nodeid_to_duration))

@@ -4,7 +4,7 @@ import pytest
 import _pytest
 
 from .outcome import Outcome
-from . import process_cov_output
+from .process_cov_output import process_cov_json
 
 def pytest_addoption(parser):
     group = parser.getgroup('donde')
@@ -63,33 +63,26 @@ class DondeRecordPlugin:
     PATH_COVERAGERC = '.donde_coveragerc'
     PATH_COV_JSON = 'coverage.json'
 
-    @pytest.mark.hookwrapper
+    @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, call, item):
         yield
         if call.when == 'call':
             item.stash[self.ITEM_DURATION_STASH_KEY] = call.duration
 
     def pytest_sessionfinish(self, session):
-        result = Outcome()
-        process_cov_output.process_cov_json(self.PATH_COV_JSON, result)
+        outcome = process_cov_json(self.PATH_COV_JSON)
 
         for item in session.items:
             marker = item.get_closest_marker('skip')
             if marker and marker.name == 'skip':
-                try:
-                    result.discard_nodeid(item.nodeid)
-                except KeyError:
-                    pass
-
+                # FIXME not covered
+                outcome.discard_nodeid(item.nodeid)
                 continue
 
-            result.register_nodeid(item.nodeid)
             duration = item.stash[self.ITEM_DURATION_STASH_KEY]
+            outcome.register_duration(item.nodeid, duration)
 
-            result.register_duration(item.nodeid, duration)
-
-        path = session.config.known_args_namespace.donde_output_path
-        result.to_file(path)
+        outcome.to_file(session.config.getoption('donde_output_path'))
 
     def pytest_terminal_summary(self, terminalreporter):
         path = terminalreporter.config.known_args_namespace.donde_output_path
