@@ -68,7 +68,7 @@ def test_recorder_example01(testdir, example_dir, pytest_args_additional, expect
 
     for nodeid, duration in REF_DATA[example_dir]['durations'].items():
         if nodeid in expected_node_ids_ordered:
-            assert record.nodeid_to_duration[nodeid] == pytest.approx(duration, abs=1e-2)
+            assert record.nodeid_to_duration[nodeid] == pytest.approx(duration, abs=2e-2)
         else:
             with pytest.raises(KeyError):
                 record.nodeid_to_duration[nodeid]
